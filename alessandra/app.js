@@ -33,8 +33,9 @@ const CONFIG = {
       arquivo: "story",
       titulo: "Story",
       subtitulo: "Compartilhe seu apoio nos stories do Instagram e no status do WhatsApp.",
-      dica: "Arraste a foto pra posicionar e use o zoom pra ajustar o enquadramento.",
+      dica: "Arraste a foto pra cima ou pra baixo pra posicionar — o fundo se completa sozinho, desfocado.",
       guiaCircular: false,
+      ajusteLivre: true, // foto se move livre na vertical; sobra vira fundo desfocado
     },
   },
 };
@@ -85,18 +86,39 @@ function loadMoldura(key) {
 
 function baseScale() {
   const f = fmt();
+  if (f.ajusteLivre) return f.w / state.img.width; // encaixa na largura; vertical fica livre
   return Math.max(f.w / state.img.width, f.h / state.img.height);
 }
 
-// mantém a foto sempre cobrindo o quadro inteiro (sem sobrar borda)
+// limita o arrasto: a foto não sai do quadro (e não sobra borda nos modos justos)
 function clampPan() {
   if (!state.img) return;
   const f = fmt();
   const s = baseScale() * state.zoom;
-  const maxX = Math.max(0, (state.img.width * s - f.w) / 2);
-  const maxY = Math.max(0, (state.img.height * s - f.h) / 2);
+  const maxX = Math.abs(state.img.width * s - f.w) / 2;
+  const maxY = Math.abs(state.img.height * s - f.h) / 2;
   state.panX = Math.min(maxX, Math.max(-maxX, state.panX));
   state.panY = Math.min(maxY, Math.max(-maxY, state.panY));
+}
+
+// fundo desfocado (estilo story do Instagram): desenha a foto minúscula
+// e amplia — o borrão sai de graça e funciona em qualquer celular
+const fundoMini = document.createElement("canvas");
+
+function drawFundoDesfocado(f) {
+  const img = state.img;
+  fundoMini.width = 54;
+  fundoMini.height = Math.round(54 * (f.h / f.w));
+  const mini = fundoMini.getContext("2d");
+  const s = Math.max(fundoMini.width / img.width, fundoMini.height / img.height);
+  mini.drawImage(
+    img,
+    (fundoMini.width - img.width * s) / 2,
+    (fundoMini.height - img.height * s) / 2,
+    img.width * s,
+    img.height * s
+  );
+  ctx.drawImage(fundoMini, 0, 0, f.w, f.h);
 }
 
 function draw() {
@@ -106,6 +128,7 @@ function draw() {
   ctx.fillRect(0, 0, f.w, f.h);
 
   if (state.img) {
+    if (f.ajusteLivre) drawFundoDesfocado(f);
     const s = baseScale() * state.zoom;
     const dw = state.img.width * s;
     const dh = state.img.height * s;

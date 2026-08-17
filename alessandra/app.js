@@ -53,6 +53,7 @@ const zoomSlider = document.getElementById("zoom");
 const btnTrocar = document.getElementById("btnTrocar");
 const btnBaixar = document.getElementById("btnBaixar");
 const btnCompartilhar = document.getElementById("btnCompartilhar");
+const btnCopiar = document.getElementById("btnCopiar");
 const titulo = document.getElementById("titulo");
 const subtitulo = document.getElementById("subtitulo");
 const dica = document.getElementById("dica");
@@ -161,6 +162,8 @@ function loadFile(file) {
     zoomRow.classList.remove("off");
     btnTrocar.disabled = false;
     btnBaixar.disabled = false;
+    btnCompartilhar.disabled = false;
+    btnCopiar.disabled = false;
     draw();
   };
   img.src = url;
@@ -286,7 +289,7 @@ function fileName() {
   return `${fmt().arquivo}-${CONFIG.slug}.png`;
 }
 
-btnBaixar.addEventListener("click", async () => {
+async function baixar() {
   const blob = await exportBlob();
   if (!blob) return;
   const a = document.createElement("a");
@@ -297,23 +300,43 @@ btnBaixar.addEventListener("click", async () => {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   toast("Imagem salva!");
-});
+}
 
+btnBaixar.addEventListener("click", baixar);
+
+// botão principal: abre a janela de compartilhar do celular
+// (WhatsApp, Instagram, etc). Se o navegador não tiver, baixa.
 btnCompartilhar.addEventListener("click", async () => {
   const blob = await exportBlob();
   if (!blob) return;
   const file = new File([blob], fileName(), { type: "image/png" });
-  try {
-    await navigator.share({ files: [file], title: "Eu Apoio" });
-  } catch (e) {
-    /* usuário cancelou */
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+    } catch (e) {
+      /* usuário cancelou a janela */
+    }
+  } else {
+    baixar();
   }
 });
 
-// mostra o botão compartilhar só onde a API existe (celular)
-if (navigator.canShare && navigator.canShare({ files: [new File([""], "t.png", { type: "image/png" })] })) {
-  btnCompartilhar.classList.remove("hidden");
-}
+// copia a imagem: a pessoa só cola na conversa, sem procurar arquivo.
+// o formato com Promise é exigido pelo iPhone (Safari).
+btnCopiar.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": exportBlob() })]);
+    toast("Foto copiada! Agora é só colar na conversa.");
+  } catch (e1) {
+    try {
+      const blob = await exportBlob();
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      toast("Foto copiada! Agora é só colar na conversa.");
+    } catch (e2) {
+      toast("Este navegador não deixa copiar — use Compartilhar.");
+    }
+  }
+});
 
 /* ---- abas ---- */
 document.querySelectorAll(".tab").forEach((t) =>

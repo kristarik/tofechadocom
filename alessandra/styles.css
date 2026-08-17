@@ -356,15 +356,6 @@ input[type="range"]::-moz-range-thumb {
 
 .btn.ghost:hover:not(:disabled) { background: var(--fundo); }
 
-.btn.share {
-  background: var(--superficie);
-  border: 1px solid var(--borda-forte);
-  color: var(--acao);
-  width: 100%;
-}
-
-.btn.share:hover { background: var(--acao-suave); }
-
 .btn.hidden { display: none; }
 
 .btn:focus-visible,

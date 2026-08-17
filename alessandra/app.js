@@ -59,10 +59,14 @@ const titulo = document.getElementById("titulo");
 const subtitulo = document.getElementById("subtitulo");
 const dica = document.getElementById("dica");
 
+// a foto entra centralizada e um pouco afastada; o fundo desfocado completa
+const ZOOM_INICIAL = 0.85;
+const ZOOM_MIN = 0.5;
+
 const state = {
   format: "perfil",
   img: null,
-  zoom: 1,
+  zoom: ZOOM_INICIAL,
   panX: 0,
   panY: 0,
 };
@@ -128,10 +132,11 @@ function draw() {
   ctx.fillRect(0, 0, f.w, f.h);
 
   if (state.img) {
-    if (f.ajusteLivre) drawFundoDesfocado(f);
     const s = baseScale() * state.zoom;
     const dw = state.img.width * s;
     const dh = state.img.height * s;
+    // se a foto não cobre o quadro todo, completa com ela mesma desfocada
+    if (dw < f.w - 0.5 || dh < f.h - 0.5) drawFundoDesfocado(f);
     ctx.drawImage(state.img, (f.w - dw) / 2 + state.panX, (f.h - dh) / 2 + state.panY, dw, dh);
   }
 
@@ -162,10 +167,10 @@ function setFormat(key) {
   });
 
   // recentraliza a foto no novo formato
-  state.zoom = 1;
+  state.zoom = ZOOM_INICIAL;
   state.panX = 0;
   state.panY = 0;
-  zoomSlider.value = 1;
+  zoomSlider.value = ZOOM_INICIAL;
   draw();
 }
 
@@ -177,10 +182,10 @@ function loadFile(file) {
   img.onload = () => {
     URL.revokeObjectURL(url);
     state.img = img;
-    state.zoom = 1;
+    state.zoom = ZOOM_INICIAL;
     state.panX = 0;
     state.panY = 0;
-    zoomSlider.value = 1;
+    zoomSlider.value = ZOOM_INICIAL;
     dropzone.classList.add("hidden");
     zoomRow.classList.remove("off");
     btnTrocar.disabled = false;
@@ -270,7 +275,7 @@ canvas.addEventListener("pointermove", (e) => {
     const distPrev = Math.hypot(prev.x - other.x, prev.y - other.y);
     const distCur = Math.hypot(cur.x - other.x, cur.y - other.y);
     if (distPrev > 0) {
-      state.zoom = Math.min(4, Math.max(1, state.zoom * (distCur / distPrev)));
+      state.zoom = Math.min(4, Math.max(ZOOM_MIN, state.zoom * (distCur / distPrev)));
       zoomSlider.value = state.zoom;
     }
   }
@@ -308,6 +313,16 @@ function exportBlob() {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
+// versão instantânea: compartilhar e copiar precisam acontecer no mesmo
+// instante do toque, senão o celular bloqueia por segurança
+function exportBlobSync() {
+  const dados = canvas.toDataURL("image/png").split(",")[1];
+  const bin = atob(dados);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: "image/png" });
+}
+
 function fileName() {
   return `${fmt().arquivo}-${CONFIG.slug}.png`;
 }
@@ -328,36 +343,29 @@ async function baixar() {
 btnBaixar.addEventListener("click", baixar);
 
 // botão principal: abre a janela de compartilhar do celular
-// (WhatsApp, Instagram, etc). Se o navegador não tiver, baixa.
+// (WhatsApp, Instagram, etc). Se der qualquer problema, baixa a imagem.
 btnCompartilhar.addEventListener("click", async () => {
-  const blob = await exportBlob();
-  if (!blob) return;
+  const blob = exportBlobSync();
   const file = new File([blob], fileName(), { type: "image/png" });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file] });
     } catch (e) {
-      /* usuário cancelou a janela */
+      if (e.name !== "AbortError") baixar(); // erro de verdade: entrega o arquivo
     }
   } else {
     baixar();
   }
 });
 
-// copia a imagem: a pessoa só cola na conversa, sem procurar arquivo.
-// o formato com Promise é exigido pelo iPhone (Safari).
+// copia a imagem: a pessoa só cola na conversa, sem procurar arquivo
 btnCopiar.addEventListener("click", async () => {
   try {
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": exportBlob() })]);
+    const blob = exportBlobSync();
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
     toast("Foto copiada! Agora é só colar na conversa.");
-  } catch (e1) {
-    try {
-      const blob = await exportBlob();
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      toast("Foto copiada! Agora é só colar na conversa.");
-    } catch (e2) {
-      toast("Este navegador não deixa copiar — use Compartilhar.");
-    }
+  } catch (e) {
+    toast("Este navegador não deixa copiar — use Compartilhar.");
   }
 });
 

@@ -9,7 +9,7 @@ const CONFIG = {
     perfil: {
       w: 1080,
       h: 1080,
-      moldura: "molduras/perfil.png",
+      moldura: "molduras/perfil.png?v=2",
       arquivo: "foto-perfil",
       titulo: "Foto de perfil",
       subtitulo: "Coloque seu rosto no círculo e baixe sua foto de apoio pra usar no WhatsApp e no Instagram.",

@@ -1,0 +1,480 @@
+:root {
+  /* ---- cores neutras (fundo, superfícies, textos) ---- */
+  --fundo: #F5F4F1;
+  --superficie: #FFFFFF;
+  --borda: #E6E4DF;
+  --borda-forte: #D2CFC8;
+  --tinta: #22211F;
+  --tinta-2: #57544D;
+  --tinta-3: #8A867E;
+
+  /* ---- cor da candidata (troque por candidato) ---- */
+  --acao: #157A2C;        /* botões e destaques */
+  --acao-hover: #116224;
+  --acao-suave: #E7F6EB;  /* fundo verdinho bem claro */
+
+  --raio-cartao: 16px;
+  --raio-controle: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden; /* nunca deixa a página balançar de lado */
+}
+
+/* ============ barra superior (estilo Itaú, na cor da candidata) ============ */
+.topo {
+  width: 100%;
+  background: var(--acao);
+}
+
+.topoConteudo {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.topoConteudo b {
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.topoConteudo .numero {
+  background: #FFFFFF;
+  color: var(--acao);
+  font-weight: 800;
+  font-size: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ============ página ============ */
+.pagina {
+  width: 100%;
+  max-width: 460px;
+  padding: 22px 18px 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.intro h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.intro p {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--tinta-2);
+  max-width: 46ch;
+}
+
+/* ============ abas de formato ============ */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  padding: 4px;
+  margin: 18px 0 14px;
+}
+
+.tab {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--tinta-2);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease-out, color 0.15s ease-out;
+}
+
+.tab:hover { color: var(--tinta); }
+
+.tab.active {
+  background: var(--acao);
+  color: #FFFFFF;
+}
+
+/* ============ cartão do editor ============ */
+.cartao {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-cartao);
+  padding: 14px;
+  box-shadow: 0 1px 2px rgba(30, 28, 24, 0.04), 0 6px 20px rgba(30, 28, 24, 0.05);
+}
+
+.canvasWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--raio-controle);
+  overflow: hidden;
+  background: #EDEBE6;
+  border: 1px solid var(--borda);
+  touch-action: none;
+  margin: 0 auto;
+}
+
+/* story e feed são mais altos — limita a altura pra caber na tela,
+   mas NUNCA passa da largura disponível (--proporcao vem do app.js) */
+.canvasWrap.tall {
+  width: min(100%, calc(min(62vh, 600px) * var(--proporcao, 0.8)));
+  height: auto;
+  align-self: center;
+  margin: 0 auto;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* guia circular do modo perfil */
+.guide {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.guide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: rgba(30, 28, 24, 0.35) 0 0 0 9999px;
+}
+
+.guide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.85);
+}
+
+.guide.hidden { display: none; }
+
+/* ============ área de toque (dropzone) ============ */
+.dropzone {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.82);
+  text-align: center;
+  padding: 20px;
+}
+
+.dropzone.hidden { display: none; }
+
+.dropzone b {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--tinta);
+  max-width: 24ch;
+}
+
+.dropzone span {
+  color: var(--tinta-2);
+  font-size: 13px;
+}
+
+.dropzone.drag {
+  background: rgba(231, 246, 235, 0.9);
+  outline: 2px dashed var(--acao);
+  outline-offset: -10px;
+}
+
+/* ícone de "toque aqui" com ondinhas */
+.toque {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  color: var(--acao);
+}
+
+.toque svg {
+  width: 44px;
+  height: 44px;
+  position: relative;
+  z-index: 1;
+}
+
+.toque .anel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--acao);
+  opacity: 0;
+  animation: ondinha 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.toque .anel:nth-child(2) { animation-delay: 0.5s; }
+
+@keyframes ondinha {
+  0%   { transform: scale(0.55); opacity: 0.55; }
+  80%  { transform: scale(1.05); opacity: 0; }
+  100% { transform: scale(1.05); opacity: 0; }
+}
+
+/* ============ controles ============ */
+.controles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 2px;
+}
+
+.zoom.off {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.zoom label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--tinta-2);
+  min-width: 40px;
+}
+
+input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--borda);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--acao);
+  cursor: pointer;
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 1px 4px rgba(30, 28, 24, 0.3);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--acao);
+  cursor: pointer;
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 1px 4px rgba(30, 28, 24, 0.3);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  border: 0;
+  border-radius: var(--raio-controle);
+  padding: 14px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  transition: background 0.15s ease-out, transform 0.12s ease-out;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: var(--acao);
+  color: #FFFFFF;
+  flex: 1.5;
+}
+
+.btn.primary:hover:not(:disabled) { background: var(--acao-hover); }
+
+.btn.ghost {
+  background: var(--superficie);
+  border: 1px solid var(--borda-forte);
+  color: var(--tinta);
+}
+
+.btn.ghost:hover:not(:disabled) { background: var(--fundo); }
+
+.btn.share {
+  background: var(--superficie);
+  border: 1px solid var(--borda-forte);
+  color: var(--acao);
+  width: 100%;
+}
+
+.btn.share:hover { background: var(--acao-suave); }
+
+.btn.hidden { display: none; }
+
+.btn:focus-visible,
+.tab:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--acao);
+  outline-offset: 2px;
+}
+
+.hint {
+  color: var(--tinta-2);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 40ch;
+  margin: 0 auto;
+}
+
+footer {
+  margin-top: 22px;
+  color: var(--tinta-3);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* aviso de "imagem salva" */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--tinta);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 13px 24px;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(30, 28, 24, 0.35);
+  opacity: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ============ janelinha câmera/galeria ============ */
+dialog#escolhaFoto {
+  width: min(100% - 24px, 436px);
+  margin: auto auto 12px;
+  border: 0;
+  border-radius: var(--raio-cartao);
+  padding: 14px;
+  background: var(--superficie);
+  box-shadow: 0 20px 50px rgba(30, 28, 24, 0.3);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+dialog#escolhaFoto[open] {
+  display: flex;
+  animation: subir 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+dialog#escolhaFoto::backdrop {
+  background: rgba(30, 28, 24, 0.45);
+}
+
+@keyframes subir {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.btnEscolha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+  padding: 15px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--tinta);
+  transition: background 0.15s ease-out;
+}
+
+.btnEscolha:hover { background: var(--fundo); }
+
+.btnEscolha svg {
+  width: 24px;
+  height: 24px;
+  color: var(--acao);
+  flex-shrink: 0;
+}
+
+.btnEscolha:focus-visible {
+  outline: 2px solid var(--acao);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toque .anel { animation: none; opacity: 0.3; transform: scale(0.85); }
+  .tab, .btn, .toast { transition: none; }
+  dialog#escolhaFoto[open] { animation: none; }
+}

@@ -9,7 +9,7 @@ const CONFIG = {
     perfil: {
       w: 1080,
       h: 1080,
-      moldura: "molduras/perfil.png?v=2",
+      moldura: "molduras/perfil.png?v=3",
       arquivo: "foto-perfil",
       titulo: "Foto de perfil",
       subtitulo: "Coloque seu rosto no círculo e baixe sua foto de apoio pra usar no WhatsApp e no Instagram.",
@@ -19,7 +19,7 @@ const CONFIG = {
     feed: {
       w: 1080,
       h: 1350,
-      moldura: "molduras/feed.png",
+      moldura: "molduras/feed.png?v=3",
       arquivo: "post-feed",
       titulo: "Post para o feed",
       subtitulo: "Sua foto na moldura oficial pra postar no feed do Instagram e do Facebook.",
@@ -29,7 +29,7 @@ const CONFIG = {
     story: {
       w: 1080,
       h: 1920,
-      moldura: "molduras/story.png",
+      moldura: "molduras/story.png?v=3",
       arquivo: "story",
       titulo: "Story",
       subtitulo: "Compartilhe seu apoio nos stories do Instagram e no status do WhatsApp.",

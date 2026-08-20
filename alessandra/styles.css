@@ -374,6 +374,65 @@ input[type="range"]:focus-visible {
   margin: 0 auto;
 }
 
+/* ============ chamada para contratar (WhatsApp) ============ */
+:root { --zap: #25D366; --zap-escuro: #1DA851; }
+
+.cta {
+  margin-top: 22px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-cartao);
+  padding: 20px 18px;
+  text-align: center;
+}
+
+.ctaTitulo {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.ctaTexto {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--tinta-2);
+  max-width: 38ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btnZap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 15px 18px;
+  border-radius: var(--raio-controle);
+  background: var(--zap);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 16px;
+  text-decoration: none;
+  transition: background 0.15s ease-out, transform 0.12s ease-out;
+}
+
+.btnZap:hover { background: var(--zap-escuro); }
+.btnZap:active { transform: scale(0.98); }
+
+.btnZap:focus-visible {
+  outline: 2px solid var(--zap-escuro);
+  outline-offset: 2px;
+}
+
+.btnZap svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
 footer {
   margin-top: 22px;
   color: var(--tinta-3);
